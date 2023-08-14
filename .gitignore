@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+/.vs/HackEmu/v17/ipch
+/EmuShell/x64
+/EmuShell/x86
+/INet/x64
+/INet/x64
+/x64
+/x86
+/.vs
