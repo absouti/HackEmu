@@ -9,6 +9,6 @@
 int emush_builtin_nums();
 const wchar_t* builtin_cmd[];
 
-int emush_cd(wchar_t** args);
-int emush_help(wchar_t** args);
-int emush_exit(wchar_t** args);
+int emush_cd(std::vector<std::wstring>& args);
+int emush_help(std::vector<std::wstring>& args);
+int emush_exit(std::vector<std::wstring>& args);

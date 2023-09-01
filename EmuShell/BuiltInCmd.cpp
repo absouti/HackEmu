@@ -1,21 +1,24 @@
 #include "EmuShell.h"
 
-int emush_cd(wchar_t** args)
+int emush_cd(std::vector<std::wstring>& args)
 {
-    if (args[1] == NULL)
+    if (args.size() == 1)
     {
-        _wperror(L"Emush error at cd, lack of args\n");
+        //_wperror(L"Emush error at cd, lack of args\n");
+        std::wcerr << L"Emush error at cd, lack of args" << std::endl;
+        return -1;
     }
     // cd 
-    else
+    if (_wchdir(args[1].c_str()) != 0)
     {
-        if (_wchdir(args[1]) != 0)
-            _wperror(L"Emush error at chdir\n");
+        _wperror(L"");
+        return -1;
     }
+
     return 1;
 }
 
-int emush_help(wchar_t** args)
+int emush_help(std::vector<std::wstring>& args)
 {
     _putws(L"This is Emulated Shell");
     _putws(L"You can't run any programs end with .bat or .com");
@@ -25,7 +28,7 @@ int emush_help(wchar_t** args)
     return 1;
 }
 
-int emush_exit(wchar_t** args)
+int emush_exit(std::vector<std::wstring>& args)
 {
-    return 0;
+    exit(0);
 }

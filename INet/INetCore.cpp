@@ -1,29 +1,10 @@
-#include <stdexcept>
-#include <limits>
-#include <vector>
-#include <iostream>
+/*
+	
+	INet 功能未实现
+*/
 
-using namespace std;
+#include "Core.h"
 
-void MyFunc(int c)
-{
-    if (c > numeric_limits< char> ::max())
-        throw invalid_argument("MyFunc argument too large.");
-    //...
-}
-
-int main()
-{
-    try
-    {
-        MyFunc(256); //cause an exception to throw
-    }
-
-    catch (invalid_argument& e)
-    {
-        cerr << e.what() << endl;
-        return -1;
-    }
-    //...
-    return 0;
+int wmain(int argc, wchar_t* argv[]) {
+	return -1;
 }
