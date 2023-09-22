@@ -10,6 +10,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <windows.h>
+#include <strsafe.h>
 
 #include <iostream>
 #include <fstream>

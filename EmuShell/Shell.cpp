@@ -15,8 +15,8 @@
     原作者未注明许可证
 */
 
-#define _CRT_SECURE_NO_WARNINGS
-#define _CRT_NON_CONFORMING_WCSTOK
+//#define _CRT_SECURE_NO_WARNINGS
+//#define _CRT_NON_CONFORMING_WCSTOK
 
 
 #ifdef _WIN64
@@ -26,11 +26,6 @@ typedef int     ssize_t;
 #endif
 
 #include "EmuShell.h"
-
-
-//Windows API 默认最大路径长度限制
-// https://learn.microsoft.com/zh-cn/windows/win32/fileio/maximum-file-path-limitation
-#define MAX_PATH 260 
 
 #define EMUSH_TOK_DELIM L" \t\r\n"
 #define EMUSH_TOK_BUFFER_SIZE 256
@@ -120,20 +115,18 @@ int emush_launch(std::vector<std::wstring>& args) {
     // 拼接字符串
     std::wstring comm(args[0]);
     for (int i = 1; i < args.size(); i++) {
-        comm = comm + L" ";
-        comm = comm + args[i];
+        comm += L" ";
+        comm += args[i];
     }
-    wchar_t commandLine[8192] = {0};
-    wcscpy(commandLine, args[0].c_str());
 
     // 创建进程
-    BOOL bRet = CreateProcessW(              //调用失败，返回0；调用成功返回非0；
+    BOOL bRet = CreateProcess(              //调用失败，返回0；调用成功返回非0；
         NULL,                               //一般都是空；（另一种批处理情况：此参数指定"cmd.exe",下一个命令行参数 "/c otherBatFile")
-        commandLine,                       //命令行参数         
+        comm.data(),                       //命令行参数         
         NULL,                               //_In_opt_    LPSECURITY_ATTRIBUTES lpProcessAttributes,
         NULL,                               //_In_opt_    LPSECURITY_ATTRIBUTES lpThreadAttributes,
         FALSE,                              //_In_        BOOL                  bInheritHandles,
-        NORMAL_PRIORITY_CLASS | CREATE_NEW_CONSOLE | CREATE_NEW_PROCESS_GROUP,                 //新的进程不使用新的窗口。
+        0,                 //新的进程不使用新的窗口。
         NULL,                               //_In_opt_    LPVOID                lpEnvironment,
         NULL,                               //_In_opt_    LPCTSTR               lpCurrentDirectory,
         &si,                                //_In_        LPSTARTUPINFO         lpStartupInfo,
@@ -141,19 +134,30 @@ int emush_launch(std::vector<std::wstring>& args) {
 
     // 判断
     if (bRet) {
-        std::wcout << L"process is running...\n";
+
+        
+
+        //std::wcout << L"process is running...\n";
         //等待子进程结束
         WaitForSingleObject(pi.hProcess, -1);
-        std::wcout << L"process is finished\n";
+
+        //std::wcout << L"process is finished\n";
         //获取子进程的返回值
         GetExitCodeProcess(pi.hProcess, &returnCode);
-        std::wcout << L"process return code:\n" << returnCode << L'\n';
+        std::wcout << L"retCode:" << returnCode << std::endl;
+
+        // 关闭句柄
+        //CloseHandle(&si);
+        //CloseHandle(&pi);
+
         return 1;
     }
-    std::wcerr << "error at create process" << std::endl;
-    return 2;
 
-
+    //https://learn.microsoft.com/en-us/windows/win32/debug/retrieving-the-last-error-code
+    //https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes#system-error-codes
+    ErrorFunc(std::wstring(L"CreateProcess").data());
+    
+    return 0;
 }
 
 int emush_execute(std::vector<std::wstring>& args)
@@ -172,11 +176,37 @@ int emush_execute(std::vector<std::wstring>& args)
 
 void emush_loop()
 {
-    wchar_t* line =  new wchar_t[8192]; // 经测试，cmd 能输入8190个字符
-
-    for (int i = 0; i <= 256 - 1; i++) {
-        line[i] = 0;
+    // 设置环境变量
+    if (_wchdir(LR"(.\mnt\bin)") == -1 || _wchdir(LR"(..\mnt\bin)") == -1) {
+        wchar_t path[MAX_PATH];
+        _wgetcwd(path, MAX_PATH);
+        std::wcerr << "cannot find bin directory" << std::endl;
+        std::system("pause>nul");
+        std::exit(-3);
     }
+    wchar_t path_cur[MAX_PATH];
+    _wgetcwd(path_cur, MAX_PATH);
+    if (SetEnvironmentVariable(L"Path", path_cur) == 0) {
+        std::wcerr << "current directory are so long" << std::endl;
+        std::system("pause>nul");
+        std::exit(-4);
+    }
+
+    // 符号链接
+    if (!CreateSymbolicLink(LR"(.\nano.exe)", LR"(.\nano\nano.exe)",
+        SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE))
+    {
+        ErrorFunc(std::wstring(L"CreateSymbolicLink").data());
+        std::wcerr << L"This means that you cannot directly execute commands such as nano" << std::endl;
+        std::wcerr << L"You can try run as administrator or enable Developed Mode" << std::endl;
+    }
+
+    wchar_t* line = new wchar_t[8192]; // 经测试，cmd 能输入8190个字符
+
+    // 数组置空
+    /*for (int i = 0; i <= 256 - 1; i++) {
+        line[i] = 0;
+    }*/
 
     // 命令行数组
     std::vector<std::wstring> args;
@@ -204,6 +234,10 @@ void emush_loop()
 int wmain(int argc, wchar_t* argv[])
 {
     //_wsetlocale(LC_ALL, L"zh-CN"); //设置区域
+    
+    // Ctrl+C Ctrl+Break 不中断
+    SetConsoleCtrlHandler(&eHandlerRoutine, TRUE);
+
     emush_loop();
     return -1;
 }
