@@ -33,8 +33,11 @@
 /.vs/HackEmu/v17/ipch
 /EmuShell/x64
 /EmuShell/x86
-/INet/x64
-/INet/x64
+/INetCore/x64
+/INetCore/x86
+/Server/x64
+/Server/x86
 /x64
 /x86
 /.vs
+/EmuShell/C418 - Cat.mp3

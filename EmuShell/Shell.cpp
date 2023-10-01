@@ -55,8 +55,6 @@ int emush_builtin_nums()
 
 void emush_read_line(wchar_t* line)
 {
-    //std::streamsize bufsize = 256;
-
     //Only GNU/Linux
     //getline(&line, &bufsize, stdin);
 
@@ -84,25 +82,9 @@ std::vector<std::wstring> stringSplit(const std::wstring& str, wchar_t delim) {
 
 std::vector<std::wstring> emush_split_line(wchar_t* line)
 {
-    //int buffer_size = EMUSH_TOK_BUFFER_SIZE, position = 0;
-    ////wchar_t* tokens = new wchar_t[buffer_size];
-    ////std::array<wchar_t*, EMUSH_TOK_BUFFER_SIZE> tokens();
-    //wchar_t* token;
-    //
-    ////token = strtok(line, EMUSH_TOK_DELIM);
-    //token = wcstok(line, EMUSH_TOK_DELIM);
-    //while (token != nullptr)
-    //{
-    //    tokens[position++] = token;
-    //    token = wcstok(nullptr, EMUSH_TOK_DELIM);
-    //}
-    //tokens[position] = NULL;
-    //return tokens;
-
     std::wstring Str(line);
     wchar_t wc[] = EMUSH_TOK_DELIM;
     return (stringSplit(Str, *wc));
-
 }
 
 int emush_launch(std::vector<std::wstring>& args) {
@@ -126,7 +108,7 @@ int emush_launch(std::vector<std::wstring>& args) {
         NULL,                               //_In_opt_    LPSECURITY_ATTRIBUTES lpProcessAttributes,
         NULL,                               //_In_opt_    LPSECURITY_ATTRIBUTES lpThreadAttributes,
         FALSE,                              //_In_        BOOL                  bInheritHandles,
-        0,                 //新的进程不使用新的窗口。
+        0,                 //新的进程不使用 Alooc
         NULL,                               //_In_opt_    LPVOID                lpEnvironment,
         NULL,                               //_In_opt_    LPCTSTR               lpCurrentDirectory,
         &si,                                //_In_        LPSTARTUPINFO         lpStartupInfo,
@@ -150,14 +132,14 @@ int emush_launch(std::vector<std::wstring>& args) {
         //CloseHandle(&si);
         //CloseHandle(&pi);
 
-        return 1;
+        return SH_SUCCESS;
     }
 
     //https://learn.microsoft.com/en-us/windows/win32/debug/retrieving-the-last-error-code
     //https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes#system-error-codes
     ErrorFunc(std::wstring(L"CreateProcess").data());
     
-    return 0;
+    return SH_FAIL;
 }
 
 int emush_execute(std::vector<std::wstring>& args)
@@ -177,7 +159,7 @@ int emush_execute(std::vector<std::wstring>& args)
 void emush_loop()
 {
     // 设置环境变量
-    if (_wchdir(LR"(.\mnt\bin)") == -1 || _wchdir(LR"(..\mnt\bin)") == -1) {
+    if (!(_wchdir(LR"(.\mnt\bin)") == -1 || _wchdir(LR"(..\mnt\bin)") == -1)) {
         wchar_t path[MAX_PATH];
         _wgetcwd(path, MAX_PATH);
         std::wcerr << "cannot find bin directory" << std::endl;
@@ -230,14 +212,33 @@ void emush_loop()
 
 }
 
-// 特定于 Microsoft 的扩展
-int wmain(int argc, wchar_t* argv[])
+void emush_startup()
 {
-    //_wsetlocale(LC_ALL, L"zh-CN"); //设置区域
-    
+    setlocale(LC_ALL, ""); //设置区域
+
     // Ctrl+C Ctrl+Break 不中断
     SetConsoleCtrlHandler(&eHandlerRoutine, TRUE);
 
+    std::wcout << L"HackEmu v0.1a\n";
+
+    // 连接服务器
+    char url[8192];
+    readln:
+    ZeroMemory(url, 8192);
+    std::wcout << L"Input game server:\n";
+    std::cin.getline(url, 8192);
+    if (!ConnectServer(url))
+        goto readln;
+
+    // 播放 BGM
+    //HANDLE h_BGM = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&PlayBGM, NULL, 0, NULL);
+
+    return;
+}
+
+int wmain(int argc, wchar_t* argv[])
+{
+    emush_startup();
     emush_loop();
     return -1;
 }

@@ -7,11 +7,9 @@ BOOL WINAPI eHandlerRoutine(
 	{
 	case CTRL_C_EVENT:
 		// 对 ctrl+c 不反应
-		return TRUE; // 不调用默认回调函数
-		break;
 	case CTRL_BREAK_EVENT:
 		// 同上
-		return TRUE;
+		return TRUE; // 不调用默认回调函数
 		break;
 	}
 	return FALSE; // 调用默认函数

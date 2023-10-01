@@ -32,3 +32,12 @@ int emush_exit(std::vector<std::wstring>& args)
 {
     exit(0);
 }
+
+int ConnectServer(char* url) {
+    if (ClientOpen(url, DEFAULT_SERVER_PORT)) {
+        std::wcerr << "INetCore loaded failed.\n";
+        return 0;
+    }
+    
+    return 1;
+}

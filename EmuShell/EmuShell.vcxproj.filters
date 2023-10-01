@@ -27,6 +27,12 @@
     <ClCompile Include="HandlerRouter.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="audio.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="audio.h">
+      <Filter>头文件</Filter>
+    </ClCompile>
     <ClCompile Include="ErrorFunc.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -35,5 +41,10 @@
     <ClInclude Include="EmuShell.h">
       <Filter>头文件</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="C418 - Cat.mp3">
+      <Filter>资源文件</Filter>
+    </Media>
   </ItemGroup>
 </Project>
