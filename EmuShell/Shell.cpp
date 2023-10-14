@@ -14,17 +14,6 @@
 
     原作者未注明许可证
 */
-
-//#define _CRT_SECURE_NO_WARNINGS
-//#define _CRT_NON_CONFORMING_WCSTOK
-
-
-#ifdef _WIN64
-typedef __int64 ssize_t;
-#else
-typedef int     ssize_t;
-#endif
-
 #include "EmuShell.h"
 
 #define EMUSH_TOK_DELIM L" \t\r\n"
@@ -38,14 +27,16 @@ const wchar_t* builtin_cmd[] =
 {
     L"cd",
     L"help",
-    L"exit"
+    L"exit",
+    L"connect"
 };
 
 int (*builtin_func[])(std::vector<std::wstring>&) =
 {
     &emush_cd,
     &emush_help,
-    &emush_exit
+    &emush_exit,
+    &ConnectServer
 };
 
 int emush_builtin_nums()
@@ -137,7 +128,8 @@ int emush_launch(std::vector<std::wstring>& args) {
 
     //https://learn.microsoft.com/en-us/windows/win32/debug/retrieving-the-last-error-code
     //https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes#system-error-codes
-    ErrorFunc(std::wstring(L"CreateProcess").data());
+	wchar_t e1[] = L"CreateProcess";
+    ErrorFunc(e1);
     
     return SH_FAIL;
 }
@@ -145,7 +137,7 @@ int emush_launch(std::vector<std::wstring>& args) {
 int emush_execute(std::vector<std::wstring>& args)
 {
     // 判断输入内容是否为空
-    if (&args == nullptr) return -1;
+    //if (&args == nullptr) return -1;
     if (args.size() == 0) return -1;
 
     for (int i = 0; i < emush_builtin_nums(); i++)
@@ -158,30 +150,7 @@ int emush_execute(std::vector<std::wstring>& args)
 
 void emush_loop()
 {
-    // 设置环境变量
-    if (!(_wchdir(LR"(.\mnt\bin)") == -1 || _wchdir(LR"(..\mnt\bin)") == -1)) {
-        wchar_t path[MAX_PATH];
-        _wgetcwd(path, MAX_PATH);
-        std::wcerr << "cannot find bin directory" << std::endl;
-        std::system("pause>nul");
-        std::exit(-3);
-    }
-    wchar_t path_cur[MAX_PATH];
-    _wgetcwd(path_cur, MAX_PATH);
-    if (SetEnvironmentVariable(L"Path", path_cur) == 0) {
-        std::wcerr << "current directory are so long" << std::endl;
-        std::system("pause>nul");
-        std::exit(-4);
-    }
-
-    // 符号链接
-    if (!CreateSymbolicLink(LR"(.\nano.exe)", LR"(.\nano\nano.exe)",
-        SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE))
-    {
-        ErrorFunc(std::wstring(L"CreateSymbolicLink").data());
-        std::wcerr << L"This means that you cannot directly execute commands such as nano" << std::endl;
-        std::wcerr << L"You can try run as administrator or enable Developed Mode" << std::endl;
-    }
+    
 
     wchar_t* line = new wchar_t[8192]; // 经测试，cmd 能输入8190个字符
 
@@ -227,8 +196,12 @@ void emush_startup()
     ZeroMemory(url, 8192);
     std::wcout << L"Input game server:\n";
     std::cin.getline(url, 8192);
-    if (!ConnectServer(url))
+    if (ClientOpen(url, DEFAULT_PORT))
+    {
+        std::cerr << "INetCore loaded failed." << std::endl;
         goto readln;
+    }
+        
 
     // 播放 BGM
     //HANDLE h_BGM = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&PlayBGM, NULL, 0, NULL);
@@ -236,7 +209,7 @@ void emush_startup()
     return;
 }
 
-int wmain(int argc, wchar_t* argv[])
+int main(int argc, char* argv[])
 {
     emush_startup();
     emush_loop();

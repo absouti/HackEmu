@@ -1,16 +1,22 @@
-﻿#include "server.h"
+﻿#include "account.h"
 
 int main()
 {
+
     setlocale(LC_ALL, "");
-    std::wcout << "\tHackEmu Server 0.1a\n";
+    std::wcout << "HackEmu Server 0.1a\n";
 
-    char url[] = "127.0.0.1";
+    Timer *timer = new Timer;
 
-    /*if (!ClientOpen(url, DEFAULT_CLIENT_PORT)) {
+    std::vector<Account> AccuManager;
+    account_init(AccuManager);
+
+    if (ServerOpen(DEFAULT_PORT)) {
         std::wcerr << "INetCore loaded failed.\n";
         std::system("pause");
-        return -1;
-    }*/
-    return 0;
+        return 0;
+    }
+    delete timer;
+    std::wcout << L"Done!\n";
+    return -1;
 }
