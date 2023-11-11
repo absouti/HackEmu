@@ -172,11 +172,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="account.cpp" />
+    <ClCompile Include="base.cpp" />
     <ClCompile Include="server.cpp" />
+    <ClCompile Include="vfs.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="account.h" />
+    <ClInclude Include="base.h" />
     <ClInclude Include="server.h" />
+    <ClInclude Include="vfs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

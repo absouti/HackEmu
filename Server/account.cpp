@@ -7,15 +7,13 @@
 */
 Account::Account(std::string name) {
     this->username = name;
-    CoCreateGuid(&this->guid); // 生成UUID
+    CoCreateGuid(&this->uuid); // 生成UUID
 
-    OLECHAR* guid_str = GUID2String(this->guid);
+    OLECHAR* guid_str = GUID2String(this->uuid);
     std::wstring guidstr(guid_str);
     guidstr = L"./account/" + guidstr;
-    fs::remove(guidstr);
     
-    
-    int i = fs::create_directory(guidstr);
+    fs::create_directory(guidstr);
     std::wstring accconfig = guidstr + L"/config.ini";
     std::ofstream fout;
     fout.open(accconfig, std::ios::out | std::ios::trunc);
@@ -71,23 +69,23 @@ bool Account::AddAttribe(std::string KeyName, void* KeyPtr) {
     this->attribe.push_back(AccuAttr(KeyName, KeyPtr));
     return true;
 }
-int getAccountIndex(std::vector<Account>& __map, GUID guid) {
+int getAccountIndex(std::vector<Account>& __map, UUID uuid) {
     for (int i = 0; i < __map.size(); i++) {
-        if (__map[0].guid == guid)
+        if (__map[0].uuid == uuid)
             return i;
     }
     return -1;
 }
-GUID getAccountGUID(std::vector<Account>& __map, int index) {
+UUID getAccountUUID(std::vector<Account>& __map, int index) {
     if (__map.size() < index) {
-        return GUID();
+        return UUID();
     }
-    return __map[index].guid;
+    return __map[index].uuid;
 }
-OLECHAR* GUID2String(GUID guid)
+OLECHAR* GUID2String(UUID uuid)
 {
     OLECHAR* guid_str = new OLECHAR();
-    StringFromGUID2(guid, guid_str, 39);
+    StringFromGUID2(uuid, guid_str, 39);
     return guid_str;
 }
 bool TravelFolder(const fs::path& pathpath)
@@ -127,23 +125,8 @@ int account_init(std::vector<Account>& __Val)
     if (!TravelFolder("account"))
         fs::create_directory("account");
     
-    __Val.push_back(Account("Nico"));
-    __Val.push_back(Account("Nico"));
-    __Val.push_back(Account("Nico"));
-    __Val.push_back(Account("Nico"));
-    __Val.push_back(Account("Nico"));
-    __Val.push_back(Account("d"));
-    __Val.push_back(Account("Nico"));
-    int age = 18;
-    char d[] = "Cheated";
-    __Val[0].AddAttribe("age", &age);
-    __Val[0].WriteAttribe("age", d);
-    std::cout << std::endl << (char*)(__Val[0].ReadAttribe("age"));
-    OLECHAR* uuid = GUID2String(getAccountGUID(__Val, 0));
-    std::cout << "GUID:";
-    std::wcout << uuid << std::endl;
+    __Val.push_back(Account("admin"));
 
-    std::cout << "index:" << getAccountIndex(__Val, getAccountGUID(__Val, 0));
-    delete uuid;
+    DEBUGCODE();
 	return 0;
 }

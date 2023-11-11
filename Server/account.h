@@ -1,5 +1,11 @@
 #pragma once
-#include "server.h"
+#include "base.h"
+
+#ifdef _DEBUG
+#define DEBUGCODE debug
+#else
+#define DEBUGCODE __noop
+#endif _DEBUG
 
 struct AccuAttr {
 	std::string KeyName; // 键名
@@ -8,7 +14,7 @@ struct AccuAttr {
 
 class Account {
 	std::string username;
-	GUID guid;
+	UUID uuid;
 	std::vector<AccuAttr> attribe;
 public:
 	Account(std::string name); // 用户名
@@ -16,11 +22,12 @@ public:
 	void* ReadAttribe(std::string KeyName);
 	bool WriteAttribe(std::string KeyName, void* KeyPtr);
 	bool AddAttribe(std::string KeyName, void* KeyPtr);
-	friend int getAccountIndex(std::vector<Account>& __map, GUID guid);
-	friend GUID getAccountGUID(std::vector<Account>& __map, int index);
+	friend int getAccountIndex(std::vector<Account>& __map, UUID uuid);
+	friend UUID getAccountUUID(std::vector<Account>& __map, int index);
 };
 
 int account_init(std::vector<Account>& __Val);
-int getAccountIndex(std::vector<Account>& __map, GUID guid);
-GUID getAccountGUID(std::vector<Account>& __map, int index);
-OLECHAR* GUID2String(GUID guid);
+int getAccountIndex(std::vector<Account>& __map, UUID uuid);
+UUID getAccountGUID(std::vector<Account>& __map, int index);
+OLECHAR* GUID2String(UUID guid);
+void debug();

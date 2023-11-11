@@ -1,19 +1,12 @@
 #pragma once
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <combaseapi.h>
-
-#include <iostream>
-#include <thread>
-#include <chrono>
-#include <fstream>
-#include <filesystem>
-namespace fs = std::filesystem;
+#include "base.h"
 #include "..\INetCore\core.h"
 
 // ¡Ÿ ± π”√
+#ifdef _DEBUG
 #pragma comment(lib, R"(..\x64\Debug\INetCore.lib)")
+#endif _DEBUG
 
 // Timer
 struct Timer {
