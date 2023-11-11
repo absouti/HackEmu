@@ -9,7 +9,7 @@ block::block() {
 	this->nodeNum = block_num;
 	block_num += 1;
 }
-vfile::vfile(std::string filename, std::string type) {
+vfile::vfile(std::string filename, vfile_type type) {
 	this->filename = filename;
 	this->type = type;
 }
@@ -18,12 +18,23 @@ VFileSystem::VFileSystem() {
 	//...
 
 	this->rootDataArea.dirName = "/";
+
+	this->AddFile(".err", vfile_type::none, "/", nullptr, 0);
 }
 VFileSystem::~VFileSystem() {
 	//Write storge
 	//...
 }
-vfile& VFileSystem::AddFile(std::string filename, std::string type, void* Data, size_t data_len) {
+vfile& VFileSystem::AddFile(std::string filename, vfile_type type, std::string path,
+	void* Data, size_t data_len) {
+	// check if directory
+	if (type == vfile_type::directory) {
+		vdir dir;
+		dir.dirName = filename;
+		this->rootDataArea.subDirs.emplace_back(dir);
+		return **this->rootDataArea.subFiles.begin();
+	}
+
 	// check data_len(optical)
 	
 	
@@ -37,6 +48,9 @@ vfile& VFileSystem::AddFile(std::string filename, std::string type, void* Data, 
 	vfile tmpFile(filename, type);
 	tmpFile.block = &dataArea.back();
 	this->indexArea.push_back(tmpFile);
+
+	// Not implemented
+	// split path
 
 	// add file to dir
 	this->rootDataArea.subFiles.push_back(&this->indexArea.back());
@@ -66,6 +80,9 @@ vdir& VFileSystem::getFileDirObj(vfile& file) {
 
 		}
 	}
+
+	// warning
+	return this->rootDataArea;
 }
 bool vfile::operator==(vfile& comparedF) {
 	//ÔİÊ±ÆúÓÃ
@@ -73,4 +90,5 @@ bool vfile::operator==(vfile& comparedF) {
 		return false;
 	if (this->filename.compare(comparedF.filename))
 		return false;
+	return true;
 }

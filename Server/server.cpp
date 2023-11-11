@@ -4,7 +4,7 @@
 
 int vfs_init() {
     VFileSystem vfs;
-    char* exe1 = new char[] {"abcdefg"};
+    vfs.AddFile("home", vfile_type::directory, "/", nullptr, 0);
     
     return 0;
 }
@@ -17,10 +17,9 @@ int main()
 
     Timer *timer = new Timer;
 
-    std::vector<Account> AccuManager;
-    account_init(AccuManager);
-    //vfs_init();
-    return -124;
+    std::list<Account> Ac;
+    account_init(Ac);
+    vfs_init();
 
     if (ServerOpen(DEFAULT_PORT)) {
         std::wcerr << "INetCore loaded failed.\n";
